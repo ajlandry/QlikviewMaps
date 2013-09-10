@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ExtensionObject Label="Maps using Leaflet.js" PageHeight="500">
+   <Dimension Label="Latitude" Initial="" TargetName="Latitude"/>
+   <Dimension Label="Longitude" Initial="" TargetName="Longitude"/>
+   <!--<Text Label="Marker Labels" Type="text" />    -->
+   <Measurement Label="Measurement" Initial="Sum(lat)" />
+  </ExtensionObject>
+
+
+
