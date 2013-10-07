@@ -10,9 +10,9 @@ L.Google = L.Class.extend({
 		tileSize: 256,
 		subdomains: 'abc',
 		errorTileUrl: '',
-		attribution: '',
+		attribution: '<a href="https://github.com/ajlandry/QlikviewMaps" target="_blank">View on Github</a>',
 		opacity: 1,
-		continuousWorld: true,
+		continuousWorld: false,
 		noWrap: false,
 	},
 
@@ -85,6 +85,7 @@ L.Google = L.Class.extend({
 
 	_initMapObject: function() {
 		this._google_center = new google.maps.LatLng(0, 0);
+		
 		var map = new google.maps.Map(this._container, {
 		    center: this._google_center,
 		    zoom: 0,
@@ -96,6 +97,14 @@ L.Google = L.Class.extend({
 		    scrollwheel: false,
 		    streetViewControl: false
 		});
+		
+		
+		if (this._type == 'TRAFFIC'){
+
+			var trafficlayer = new google.maps.TrafficLayer();
+			trafficlayer.setMap(map);
+
+		}
 
 		var _this = this;
 		this._reposition = google.maps.event.addListenerOnce(map, "center_changed", 
@@ -104,6 +113,7 @@ L.Google = L.Class.extend({
 		map.backgroundColor = '#ff0000';
 		this._google = map;
 	},
+
 
 	_resetCallback: function(e) {
 		this._reset(e.hard);

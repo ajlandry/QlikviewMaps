@@ -1,182 +1,162 @@
-//AJL: will need to make sure this is updated whenever the final extension is packaged.  I.E. the folder name will need to be whatever the final product name will be
-var template_path = Qva.Remote + "?public=only&name=Extensions/ajandry/leafletmaps/";
-//Cloudmade API Key
 
 
 
+function LeafletMapsChart_Init(){
 
-
-var extensionName = "leafletmaps";
-
-var extensionPath = Qva.Remote + "?public=only&name=Extensions/ajlandry/" + extensionName +"/";
-
-function loadGoogle(){
-
-
-
-
-	Qva.LoadScript('https://maps.googleapis.com/maps/api/js?sensor=false&callback=extension_Init');
-}
-
-//Function : extension_Init
-// Loading of external JS libraries
-function extension_Init(){
-
-	var files = [];
-	//if Can't resolve jQuery, then load it
-	if (typeof jQuery == 'undefined') {
-	files.push(extensionPath + "jquery-1.10.2.min.js");
-	}
-	//files.push("https://getfirebug.com/firebug-lite.js");
-	//Pushing js file names into files array
-	files.push(extensionPath + "leaflet-0.6.4/leaflet.js");
-
-	files.push(extensionPath + "leaflet-google.js");
-
-
-		//loading all the js files and then executing extension_Done
-	 Qv.LoadExtensionScripts(files, extension_Done);
-}
-
-
-
-
-
-//Beginning of function extension_Done. Called once the javascripts are done loading in the document
-
-function extension_Done() {
-	Qva.AddExtension('ajlandry/leafletmaps', function(){
-		Qva.LoadCSS(extensionPath + "style.css");
-		Qva.LoadCSS(extensionPath + "leaflet-0.6.4/leaflet.css");
-		 _this = this;
-		 
+	Qva.AddExtension('LeafletJS', function() {
 	
-		divName = _this.Layout.ObjectId.replace("\\", "_");
-		
-		if (_this.Element.children.length == 0) {
-			var ui = document.createElement("div");
-			ui.setAttribute("id", divName);
-			_this.Element.appendChild(ui);
-			$("#" + divName).css("height", _this.GetHeight() + "px").css("width", _this.GetWidth() + "px");
-		} else {
 			
-			//$("#" + divName).css("height", _this.GetHeight() + "px").css("width", _this.GetWidth() + "px");
-			$("#" + divName).css("height", _this.GetHeight() + "px").css("width", _this.GetWidth() + "px");
-			$("#" + divName).empty();
-		};
+
+		var _this = this;
+		_this.ExtSettings = {};
+		_this.ExtSettings.ExtensionName ='LeafletJS';
+		_this.ExtSettings.LoadUrl = Qva.Remote + (Qva.Remote.indexOf('?') >= 0 ? '&' : '?') + 'public=only' + '&name=';
 
 		
+		var imagePath = 'Extensions/' + _this.ExtSettings.ExtensionName + '/lib/images';
 
 
-		
-			if(typeof map == 'undefined'){
-				showLeafMap();
-			}
-			else{
-				UpdateLeafMap();
+		//Array to hold the css files to load
+		var cssFiles = [];
 
-			}
+		//pushing the css files to the css files array
+	    cssFiles.push('Extensions/' + _this.ExtSettings.ExtensionName + '/lib/css/style.css');
+	    cssFiles.push('Extensions/' + _this.ExtSettings.ExtensionName + '/lib/css/leaflet.css');
+	    //cssFiles.push('Extensions/' + _this.ExtSettings.ExtensionName + '/lib/css/leaflet.ie.css');
+	    cssFiles.push('Extensions/' + _this.ExtSettings.ExtensionName + '/lib/css/MarkerCluster.css');
+	    cssFiles.push('Extensions/' + _this.ExtSettings.ExtensionName + '/lib/css/MarkerCluster.Default.css');
+   	    cssFiles.push('Extensions/' + _this.ExtSettings.ExtensionName + '/lib/css/MarkerCluster.Default.ie.css');
 
+	 
 
-	
+	 	$('.leaflet-control-layers-toggle').css('background-image','url(Extensions/'+ _this.ExtSettings.ExtensionName +'/lib/images/layers.png)');
+	 	//Looping through to load up the css files
+	 	//this is done because qlikview doesn't have an api to load up css files being passed an array.
+	    for (var i = 0; i < cssFiles.length; i++) {
+
+	        Qva.LoadCSS(_this.ExtSettings.LoadUrl + cssFiles[i]);
+	    }
 
 	    
-	});
-}
+
+		//Array to hold the js libraries to load up.
+	    var jsFiles = [];
+	              
+	    //pushing the js files to the jsFiles array
+	    jsFiles.push('Extensions/' + _this.ExtSettings.ExtensionName + '/lib/js/leaflet-0.6.4.js');
+	    jsFiles.push('Extensions/' + _this.ExtSettings.ExtensionName + '/lib/js/leaflet-google.js');
+		jsFiles.push('Extensions/' + _this.ExtSettings.ExtensionName + '/lib/js/leaflet.markercluster.js');
+
+		//Loading up the js files via the QlikView api that allows an array to be passed.
+		//After we load them up successfully, initialize the chart settings and append the chart
+	    Qv.LoadExtensionScripts(jsFiles, function () {
+	    	
+	    	InitSettings();
+	        Init();
+	        InitChart();
+   		
+
+	    });
+          
+
+			function InitSettings() {
+			  	
+				_this.ExtSettings.UniqueId = _this.Layout.ObjectId.replace('\\', '_');
+
+				}
+
+			function Init(){
+
+				$(_this.Element).empty();
+
+				mapchart = document.createElement("div");
+				$(mapchart).attr('id','Chart_'+ _this.ExtSettings.UniqueId);
+				$(mapchart).height('100%');
+				$(mapchart).width('100%');	
 
 
-function UpdateLeafMap(){
+			    $(_this.Element).append(mapchart);
 
-	map.updateSize();
+				}
 
-}
+			function InitChart(){
 
-function showLeafMap(){
+				try
+				{
+
+					var markers = new L.MarkerClusterGroup();
+					
+					for (var i=0,k=_this.Data.Rows.length;i<k;i++){
+							var row = _this.Data.Rows [i];
+
+							var val = parseFloat(row[0].text);
+							var val2 = parseFloat(row[1].text);
+												
+							//Check to see if the lat and long passed back is a valid
+								if (val != NaN && val !='' && val <= 90 && val >= -90 && val2 != NaN && val2 !='' && val2 <= 180 && val >= -180) {
+									
+									var latlng = new L.LatLng(val, val2);
+									var poptext = 'Lat & Long:'+latlng+'<br/>'+ row[2].text;
+									L.marker(latlng,{title:row[2].text}).addTo(markers).bindPopup(poptext);
+									
+								} else {
+									//Need to figure out a method of notifiying bad lat and longs...
+					   			}
+					
+					}
 
 
-var markers = new L.LayerGroup();
-//var routes = new L.LayerGroup();
 
-var points = [];
-var point = [];
-var route = [];
-
- for (var i=0;i<_this.Data.Rows.length; i++) {
- 				var row = _this.Data.Rows[i];
-
- 				
- 				var data =[parseFloat(row[0].text),parseFloat(row[1].text)];
+					var googleRoad = new L.Google('ROADMAP');
+					var googleSat = new L.Google('SATELLITE');
+					var googleHybrid = new L.Google('HYBRID');
 
 
- 				var lat = parseFloat(row[0].text);
- 				var lng = parseFloat(row[1].text);
- 				point = new L.LatLng(lat , lng);
+					var baseLayers = {
+						"Roadmap": googleRoad,
+						"Satellite": googleSat,
+						"Hybrid":googleHybrid
+					};
 
- 				points.push(point);
+					
+
+					var map = new L.map(mapchart, {maxZoom: 17,layers:[googleRoad]});
+				 	L.Control.Zoom('topleft');
+				 	L.Icon.Default.imagePath = imagePath;
+
+					map.attributionControl.setPosition('topright');
+					
+					L.control.layers(baseLayers).addTo(map);
+					
+					//map.addLayer(googleLayer);
+					map.addLayer(markers);
+					map.fitBounds(markers);
+			 	}
+			 	catch (err){
+			 		if (typeof map != 'undefined'){
+			 				map.remove();
+			 		}
 
 
- 				
- 				
- 				L.marker(data).addTo(markers);
+			 		$(mapchart).html('<div id="errormsg">There was an issue creating the map. Did you forget to set the PopUPHTML?<br/><br/><b>Error Message:</b><br />'+err.message+'</div> ');
+			 		
 				
- 			};
- 			
-//alert(points.join('\n'));
-//route = new L.Polyline(points, {weight:3, opacity:.3, smoothFactor:1}).addTo(routes);
-
-// if (typeof map == 'undefined')
-// {
-var roadGoogle = new L.Google('ROADMAP'),
-    hybGoogle  = new L.Google('HYBRID'),
-    satGoogle = new L.Google();
-
-map = new L.map(divName, 
-	{center:[39.73, -104.99], 
-		zoom:10,
-		layers:[roadGoogle,markers]
+			 	}
+				
+				
+				
+			
+			}
 
 
-	});
-//L.Control.Zoom('topleft');
-
-map.fitBounds(points);
-
-var baseLayers = {
- "Roadmap" : roadGoogle,
- "Hybird" : hybGoogle,
- "Statille": satGoogle
-
-
-
-};
-
-var overlays = {"Markers":markers};
-
-
-L.control.layers(baseLayers,overlays).addTo(map);
-L.control.scale().addTo(map);
-
-
-
-
-
-
-// L.tileLayer('http://{s}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png', {
-//     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-// }).addTo(map);
-
-
+});
 
 
 }
 
+//Google maps api need to be loaded first and done via the asynchronous api which calls the LeafletMapsChart_Init after it is done loading.
+//I found that trying to load up the google maps api without the async connection would sometimes load the google maps js last and would cause issues with leafletjs from working
+Qva.LoadScript('https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=visualization,weather&callback=LeafletMapsChart_Init');
 
 
-
-
-
-//Initiate extension
-
-loadGoogle();
-
-
+ 

@@ -1,0 +1,10 @@
+﻿/* Put css styles in here */
+#errormsg {
+	position: absolute;
+	width: 100%;
+	height: 20px;
+	top:50%;
+	margin-top: -10px;
+	text-align: center;
+
+}

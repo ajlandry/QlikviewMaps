@@ -1,10 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<ExtensionObject Label="Maps using Leaflet.js" PageHeight="500">
-   <Dimension Label="Latitude" Initial="" TargetName="Latitude"/>
-   <Dimension Label="Longitude" Initial="" TargetName="Longitude"/>
-   <!--<Text Label="Marker Labels" Type="text" />    -->
-   <Measurement Label="Measurement" Initial="Sum(lat)" />
-  </ExtensionObject>
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ExtensionObject Label="LeafletJS" Path="ajlandry/LeafletJS" Description="Mapping using Leaflet.js and Gmaps" Type="object" PageHeight="100000" PageWidth="100000">
 
 
+  <Dimension Label="Latitude" TargetName="Dimension Name" Initial="Lat" />
+  <Dimension Label="Longitude" TargetName="Dimension Name" Initial="" />
+  <!--<Dimension Label="Hover Text" Targetname="Dimension Name" Initial="" />-->
+
+  
+  <!-- X Axis -->
+  <Measurement Label="Popup HTML" Initial="" />
+  <Initiate Name="Caption.Show" Value="0" />
+  <Initiate Name="Chart.Expression.0.0.Definition" Value="=''" />
+  <Initiate Name="Chart.Dimension.0.Field" Value="Lat" />
+  <Initiate Name="Chart.Dimension.1.Field" Value="Long" />
+                                                  <!-- 1 -->
+     
+
+
+</ExtensionObject>
 

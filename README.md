@@ -11,7 +11,7 @@ I wanted to provide the community with some free extensions for mapping in QlikV
 
 * **Leafletjs**
 
->Mapping extension based on LeafletJS framework and uses Google as the TileLayer.  Plots markers on map given latitude and longitude.  Allows user to toggle between Road, Satille, and Hybird Google maps.
+>Mapping extension based on LeafletJS framework, uses Google as the TileLayer and Leaflet Marker Cluster .  Plots markers on map given latitude and longitude.  Allows user to toggle between Road, Satille, and Hybird Google maps.
 
 
 
